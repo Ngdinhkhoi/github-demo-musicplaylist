@@ -1,7 +1,15 @@
+import webbrowser
+
+
 class Video:
 	def __init__(self, title, link):
 		self.title = title
 		self.link = link
+		self.seen  = False 
+
+	def open(self):
+		webbrowser.open(self.link)
+		self.seen = True
 
 
 class Playlist:
@@ -34,6 +42,7 @@ def read_videos():
 
 def print_videos(videos):
 	for i in range(len(videos)):
+		print("Video " + str(i + 1) + ":")
 		print_video(videos[i])
 
 
@@ -90,12 +99,12 @@ def read_playlist_from_txt():
 	return playlist
 	
 def print_playlist(playlist):
-	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	
 	print("Playlist: " + playlist.name,end="")
 	print("Description: " + playlist.description,end="")
 	print("Rating: " + playlist.rating,end="")
 	print_videos(playlist.videos)
-	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	
 
 
 def select_in_range(prompt, min, max):
@@ -106,14 +115,69 @@ def select_in_range(prompt, min, max):
 	choice = int(choice)
 	return choice
 
+def play_video(playlist):
+	print_videos(playlist.videos)
+	total = len(playlist.videos)
+
+	choice = select_in_range("\nChoice your number: ", 1, total)
+	print("Open video: " + "\n" + playlist.videos[choice-1].title +  playlist.videos[choice-1].link)
+	playlist.videos[choice-1].open()
+
+def add_new_video(playlist):
+	print("Enter new video information: ")
+	new_title = input("Enter new title: ") + "\n"
+	new_link  = input("Enter new link : ") + "\n"
+	new_video = Video(new_title, new_link)
+	playlist.videos.append(new_video)
+	return playlist
+
+def update_playlist(playlist):
+	print("Update playlist ?")
+	print("1. Name")
+	print("2. Description")
+	print("3. Rating")
+	choice = select_in_range("Select an option(1 - 3)",1,3)
+	if choice == 1:
+		new_playlist_name = input("Enter new playlist name: ") + "\n"
+		playlist.name = new_playlist_name
+		print("Update Successfully!")
+		return playlist
+	elif choice == 2:
+		new_playlist_description = input("Enter new playlist description: ") + "\n"
+		playlist.description = new_playlist_description
+		return playlist
+		print("Update Successfully!")
+	elif choice == 3:
+		new_playlist_rating = str(select_in_range("Rating (1-5)",1,5))  +"\n"
+		playlist.rating = new_playlist_rating
+		print("Update Successfully!")
+		return playlist
+
+
+def remove_video_from_playlist(playlist):
+	print_videos(playlist.videos)
+	choice = select_in_range("\nEnter video you wanna remove: ", 1, len(playlist.videos))
+
+	new_playlist_videos = []
+	for i in range(len(playlist.videos)):
+		if i == choice - 1:
+			continue
+		new_playlist_videos.append(playlist.videos[i])
+
+	playlist.videos = new_playlist_videos
+	return playlist 
+
 
 def show_menu():
-	print("---------------------------")
-	print("Option 1: Create playlist")
-	print("Option 2: Show playlist")
-	print("Option 3: Play a video")
-	print("Option 7: Save and Exit")
-	print("---------------------------")
+	print("-----------------------------")
+	print("| Option 1: Create playlist  |")
+	print("| Option 2: Show playlist    |")
+	print("| Option 3: Play a video     |")
+	print("| Option 4: Add a video      |")
+	print("| Option 5: Update playlist  |")
+	print("| Option 6: Deleting a video |")
+	print("| Option 7: Save and Exit    |")
+	print("-----------------------------")
 
 def main():
 
@@ -138,11 +202,26 @@ def main():
 		choice = select_in_range("Select an option(1 - 7): ", 1, 7)
 		if choice == 1:
 			playlist = read_playlist()
+			input("\nPress enter  to continue\n")
 		elif choice == 2:
 			print_playlist(playlist)
+			input("\nPress enter  to continue\n")
+		elif choice == 3:
+			play_video(playlist)
+			input("\nPress enter  to continue\n")
+		elif choice == 4:
+			playlist = add_new_video(playlist)
+			input("\nPress enter  to continue\n")
+		elif choice == 5:
+			playlist = update_playlist(playlist)
+			input("\nPress enter to continue\n")
+		elif choice == 6:
+			playlist = remove_video_from_playlist(playlist)
+			input("\nPress enter to continue\n")
 		elif choice == 7:
 			write_playlist_to_txt(playlist)
 			print("Successfully")
+			input("\nPress enter  to continue\n")
 			break
 		else:
 			print("Invalid Input!")
